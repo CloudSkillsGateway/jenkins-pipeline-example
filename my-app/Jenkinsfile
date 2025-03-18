@@ -1,33 +1,56 @@
 pipeline {
-    agent any
+    agent any  // Runs on any available agent
 
-    tools {
-        maven "MAVEN"
-        jdk "JDK"
+    environment {
+        // Define environment variables if needed (optional)
+        MAVEN_HOME = '/opt/maven'
     }
 
     stages {
-        stage('Initialize'){
-            steps{
-                echo "PATH = ${M2_HOME}/bin:${PATH}"
-                echo "M2_HOME = /opt/maven"
+        stage('Checkout') {
+            steps {
+                // Checkout the code from the Git repository
+                git 'https://github.com/AIandDS2025/jenkins-pipeline-example.git'
             }
         }
+
         stage('Build') {
             steps {
-                dir("/var/lib/jenkins/workspace/New_demo/my-app/") {
-                bat 'mvn clean install'
+                script {
+                    // Run Maven build command
+                    bat 'mvn clean install'  // For Windows
+                    // sh 'mvn clean install'  // For Linux/Mac
                 }
-            
             }
         }
-     }
+
+        stage('Test') {
+            steps {
+                // Run unit tests (if any)
+                script {
+                    // You can run tests here if applicable
+                    bat 'mvn test'  // For Windows
+                    // sh 'mvn test'  // For Linux/Mac
+                }
+            }
+        }
+
+        stage('Archive Results') {
+            steps {
+                // Archive test results (if applicable)
+                junit '**/target/test-*.xml'  // Archive test results
+            }
+        }
+    }
+
     post {
-       always {
-          junit(
-        allowEmptyResults: true,
-        testResults: '*/test-reports/.xml'
-      )
-      }
-   } 
+        success {
+            // Actions to perform after a successful build
+            echo 'Build was successful!'
+        }
+        failure {
+            // Actions to perform after a failed build
+            echo 'Build failed.'
+        }
+    }
 }
