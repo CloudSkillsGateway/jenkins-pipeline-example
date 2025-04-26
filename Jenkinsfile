@@ -7,14 +7,24 @@ pipeline {
     stages {
         stage('Initialize'){
             steps{
+                echo "M2_HOME = ${env.M2_HOME}"  // Use the correct environment variable for Maven
                 echo "PATH = ${M2_HOME}/bin;${PATH}"  // Adjust path separator for Windows
-                echo "M2_HOME = ${env.M2_HOME}"      // Use the correct environment variable for Maven
             }
         }
         stage('Build') {
             steps {
-                dir("C:\\Jenkins\\workspace\\demopipelinetask\\my-app") { // Use Windows path here
-                    bat 'mvn -B -DskipTests clean package'  // Use bat instead of sh for Windows
+                script {
+                    if (isUnix()) {
+                        // For Unix-based nodes (Linux, macOS)
+                        dir("my-app") {
+                            sh 'mvn -B -DskipTests clean package'  // Use sh for Unix-based systems
+                        }
+                    } else {
+                        // For Windows nodes
+                        dir("C:\\Jenkins\\workspace\\demopipelinetask\\my-app") {
+                            bat 'mvn -B -DskipTests clean package'  // Use bat for Windows nodes
+                        }
+                    }
                 }
             }
         }
