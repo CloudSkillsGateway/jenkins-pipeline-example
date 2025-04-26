@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Checkout the code from the Git repository
-                git 'https://github.com/AIandDS2025/jenkins-pipeline-example.git'
+                git 'https://github.com/CloudSkillsGateway/jenkins-pipeline-example.git'
             }
         }
 
